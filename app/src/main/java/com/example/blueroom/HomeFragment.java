@@ -12,6 +12,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,15 +50,14 @@ public class HomeFragment extends Fragment {
         recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2)); // 2 columns for grid
 
         // Set up Firestore query
-        Query query = FirebaseFirestore.getInstance().collection("products").orderBy("name");
+        Query query = FirebaseFirestore.getInstance().collection("products").orderBy("Name");
 
-        // Configure RecyclerView options
         FirestoreRecyclerOptions<Product> options = new FirestoreRecyclerOptions.Builder<Product>()
                 .setQuery(query, Product.class)
                 .setLifecycleOwner(this)
                 .build();
 
-        // Initialize FirestoreRecyclerAdapter
+        Log.d("QUERY_DEBUG", "Starting query");
         adapter = new FirestoreRecyclerAdapter<Product, ProductViewHolder>(options) {
             @NonNull
             @Override
@@ -68,6 +68,7 @@ public class HomeFragment extends Fragment {
 
             @Override
             protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
+                Log.d("BIND_DEBUG", "Binding item: " + model.getName()); // Registro para depuración
                 holder.bind(model);
             }
         };

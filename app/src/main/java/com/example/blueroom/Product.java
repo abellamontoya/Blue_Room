@@ -1,61 +1,41 @@
 package com.example.blueroom;
 
 public class Product {
-    public String Author;
-    public String ImageURL;
-    public String Name;
-    public int Quantity;
-    public int Price;
+    public String author;  // Cambiado a minúscula
+    public String imageURL;
+    public String name;    // Cambiado a minúscula
+    public int quantity;   // Cambiado a minúscula
+    public int price;      // Cambiado a minúscula
 
-
-    // Empty constructor required by Firestore
+    // Constructor vacío requerido por Firestore
     public Product() {}
 
     public Product(String imageURL, String name, String author, int price, int quantity) {
-        this.ImageURL = imageURL;
-        this.Name = name;
-        this.Author = author;
-        this.Price = price;
-        this.Quantity = quantity;
+        this.imageURL = imageURL;
+        this.name = name;
+        this.author = author;
+        this.price = price;
+        this.quantity = quantity;
     }
 
+    // Getters
     public String getAuthor() {
-        return Author;
-    }
-
-    public void setAuthor(String author) {
-        Author = author;
+        return author;
     }
 
     public String getImageURL() {
-        return ImageURL;
-    }
-
-    public void setImageURL(String imageURL) {
-        ImageURL = imageURL;
+        return imageURL;
     }
 
     public String getName() {
-        return Name;
-    }
-
-    public void setName(String name) {
-        Name = name;
+        return name;
     }
 
     public int getQuantity() {
-        return Quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        Quantity = quantity;
+        return quantity;
     }
 
     public int getPrice() {
-        return Price;
-    }
-
-    public void setPrice(int price) {
-        Price = price;
+        return price;
     }
 }
