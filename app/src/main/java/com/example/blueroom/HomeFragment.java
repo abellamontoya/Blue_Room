@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
@@ -27,10 +27,10 @@ import com.google.firebase.firestore.Query;
 
 public class HomeFragment extends Fragment {
     private RecyclerView recyclerView;
-    //private ProductAdapter adapter;
     private NavController navController;
     private AppViewModel appViewModel;
     private ImageView photoImageView;
+    private FirestoreRecyclerAdapter<Product, ProductViewHolder> adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -44,9 +44,9 @@ public class HomeFragment extends Fragment {
 
         appViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
 
-        // Initialize RecyclerView
+        // Initialize RecyclerView with GridLayoutManager
         recyclerView = view.findViewById(R.id.recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 2)); // 2 columns for grid
 
         // Set up Firestore query
         Query query = FirebaseFirestore.getInstance().collection("products").orderBy("name");
@@ -57,44 +57,52 @@ public class HomeFragment extends Fragment {
                 .setLifecycleOwner(this)
                 .build();
 
-        // Set up adapter
-        /*adapter = new ProductAdapter(options);
-        recyclerView.setAdapter(adapter);*/
-
-        // Set click listener for photoImageView
-        photoImageView.setOnClickListener(new View.OnClickListener() {
+        // Initialize FirestoreRecyclerAdapter
+        adapter = new FirestoreRecyclerAdapter<Product, ProductViewHolder>(options) {
+            @NonNull
             @Override
-            public void onClick(View v) {
-                navController.navigate(R.id.profileFragment);
+            public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.product_recyclerview, parent, false);
+                return new ProductViewHolder(view);
             }
-        });
+
+            @Override
+            protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
+                holder.bind(model);
+            }
+        };
+
+        // Set adapter to RecyclerView
+        recyclerView.setAdapter(adapter);
 
         // Load user photo into photoImageView
+        photoImageView = view.findViewById(R.id.image); // Assuming you have an ImageView with this ID
         Uri photoUri = FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl();
-        if (photoUri != null) {
+        if (photoUri != null && photoImageView != null) { // Check if photoImageView is not null
             String url = photoUri.toString();
             Glide.with(requireContext()).load(url).circleCrop().into(photoImageView);
         } else {
             // Load default placeholder image
-            photoImageView.setImageResource(R.drawable.user);
+            if (photoImageView != null) {
+                photoImageView.setImageResource(R.drawable.user);
+            }
         }
     }
 
-    /*static class ProductAdapter extends FirestoreRecyclerAdapter<Product, ProductViewHolder> {
-        public ProductAdapter(@NonNull FirestoreRecyclerOptions<Product> options) {
-            super(options);
-        }
 
-        @NonNull
-        @Override
-        public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.product_recyclerview, parent, false);
-            return new ProductViewHolder(view);
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (adapter != null) {
+            adapter.startListening();
         }
+    }
 
-        @Override
-        protected void onBindViewHolder(@NonNull ProductViewHolder holder, int position, @NonNull Product model) {
-            holder.bind(model);
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (adapter != null) {
+            adapter.stopListening();
         }
     }
 
@@ -121,5 +129,5 @@ public class HomeFragment extends Fragment {
             priceTextView.setText(String.valueOf(product.getPrice()));
             quantityTextView.setText(String.valueOf(product.getQuantity()));
         }
-    }*/
+    }
 }
